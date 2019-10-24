@@ -6,6 +6,7 @@ from django.db.models import QuerySet
 from django_countries.fields import Country
 from prices import Money, MoneyRange, TaxedMoney, TaxedMoneyRange
 
+from . import ConfigurationTypeField
 from .models import PluginConfiguration
 
 if TYPE_CHECKING:
@@ -206,6 +207,11 @@ class BasePlugin:
             for config_item_to_update in configuration_to_update:
                 if config_item["name"] == config_item_to_update.get("name"):
                     new_value = config_item_to_update.get("value")
+                    item_type = config_item.get("type")
+                    if item_type == ConfigurationTypeField.BOOLEAN and not isinstance(
+                        new_value, bool
+                    ):
+                        new_value = new_value.lower() == "true"
                     config_item.update([("value", new_value)])
 
     @classmethod
